@@ -1,5 +1,3 @@
-
-
 #include <sys/shm.h>
 #include <sys/msg.h>
 #include <stdio.h>
@@ -64,7 +62,7 @@ void cleanUp(const int& shmid, const int& msqid, void* sharedMemPtr)
 	/* TODO: Detach from shared memory */
 	shmdt(sharedMemPtr);
 	shmctl(shmid, IPC_RMID, NULL);
-	shmctl(msqid, IPC_RMID, NULL);
+	msgctl(msqid, IPC_RMID, NULL);
 }
 
 /**
@@ -107,11 +105,12 @@ void send(const char* fileName)
 		/* TODO: Send a message to the receiver telling him that the data is ready 
  		 * (message of type SENDER_DATA_TYPE) 
  		 */
-		int msgsnd();
+		msgsnd(msqid, &sndMsg, SHARED_MEMORY_CHUNK_SIZE, IPC_NOWAIT);
+
 		/* TODO: Wait until the receiver sends us a message of type RECV_DONE_TYPE telling us 
  		 * that he finished saving the memory chunk. 
  		 */
-
+		msgrcv(msqid, &rcvMsg, SHARED_MEMORY_CHUNK_SIZE, 1, 0);
 	}
 	
 
