@@ -36,17 +36,15 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 		    is unique system-wide among all SYstem V objects. Two objects, on the other hand,
 		    may have the same key.
 	 */
-	pid_t pid = getpid();
 	key_t key;
 	key = ftok("keyfile.txt", 'a');
 	/* TODO: Get the id of the shared memory segment. The size of the segment must be SHARED_MEMORY_CHUNK_SIZE */
 	/* TODO: Attach to the shared memory */
 	/* TODO: Attach to the message queue */
 	/* Store the IDs and the pointer to the shared memory region in the corresponding parameters */
-	shmid = shmget(key, SHARED_MEMORY_CHUNK_SIZE, IPC_CREAT | 0666);
+	shmid = shmget(key, SHARED_MEMORY_CHUNK_SIZE, IPC_CREAT | 0644);
 	sharedMemPtr = (void *) shmat(shmid, NULL, 0);
-	msqid = msgget(key, shmid);
-	//sharedMemPtr = (pid_t *) shmat(shmid, NULL, 0);
+	msqid = msgget(key, 0644 | IPC_CREAT);
 
 }
 
@@ -105,12 +103,18 @@ void send(const char* fileName)
 		/* TODO: Send a message to the receiver telling him that the data is ready 
  		 * (message of type SENDER_DATA_TYPE) 
  		 */
-		msgsnd(msqid, &sndMsg, SHARED_MEMORY_CHUNK_SIZE, IPC_NOWAIT);
+		 if(msgsnd(msqid, &sndMsg, sizeof(struct message)-sizeof(long), 0) == -1)
+		 {
+			 perror("ERROR: sending message.");
+		 }
 
 		/* TODO: Wait until the receiver sends us a message of type RECV_DONE_TYPE telling us 
  		 * that he finished saving the memory chunk. 
  		 */
-		msgrcv(msqid, &rcvMsg, SHARED_MEMORY_CHUNK_SIZE, 1, 0);
+		 if(msgrcv(msqid, &rcvMsg, sizeof(struct message)-sizeof(long), RECV_DONE_TYPE, 0) == -1)
+		 {
+			 perror("ERROR: receiving message");
+		 }
 	}
 	
 
@@ -118,7 +122,7 @@ void send(const char* fileName)
  	  * Lets tell the receiver that we have nothing more to send. We will do this by
  	  * sending a message of type SENDER_DATA_TYPE with size field set to 0. 	
 	  */
-
+	 sndMsg.size = 0;
 		
 	/* Close the file */
 	fclose(fp);
