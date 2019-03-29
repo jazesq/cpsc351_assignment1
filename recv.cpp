@@ -57,26 +57,26 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 
 	 		//	ftok("keyfile.txt",'a');
 
-			memKey = ftok("keyfile.txt", 'a');
+	memKey = ftok("keyfile.txt", 'a');
 
 
 
 	/* TODO: Allocate a piece of shared memory. The size of the segment must be SHARED_MEMORY_CHUNK_SIZE. */
 
-			shmid = shmget(memKey,SHARED_MEMORY_CHUNK_SIZE, 0666| IPC_CREAT);
+	shmid = shmget(memKey,SHARED_MEMORY_CHUNK_SIZE, 0644| IPC_CREAT);
 
 	/* TODO: Attach to the shared memory */
-
-		if((sharedMemPtr=shmat(shmid, NULL, 0))== (char *) -1)
-		{
-			perror("SHMAT");
-			exit(1);
-		}
+	
+	if((sharedMemPtr=shmat(shmid, NULL, 0))== (char *) -1)
+	{
+		perror("SHMAT");
+		exit(1);
+	}
 
 
 	/* TODO: Create a message queue */
 	/* Store the IDs and the pointer to the shared memory region in the corresponding parameters */
-	msqid= msgget(memKey, 0666);
+	msqid= msgget(memKey, 0644 | IPC_CREAT);
 	if(msqid ==-1 )
 	{
 		perror("msgget");
@@ -111,7 +111,6 @@ void mainLoop()
      * of the message is not 0, then we copy that many bytes from the shared
      * memory region to the file. Otherwise, if 0, then we close the file and
      * exit.
-
      *
      * NOTE: the received file will always be saved into the file called
      * "recvfile"
@@ -120,12 +119,14 @@ void mainLoop()
 	/* Keep receiving until the sender set the size to 0, indicating that
  	 * there is no more data to send
  	 */
-	 message sMessage;
-	 message rMessage;
+	 //message sMessage;
+	 //message rMessage;
+
+	 message myMessage;
 
 	int messageSize= SENDER_DATA_TYPE;
 
-
+	msgSize = myMessage.size;
 
 	while(msgSize != 0)
 	{
@@ -142,13 +143,21 @@ void mainLoop()
  			 * I.e. send a message of type RECV_DONE_TYPE (the value of size field
  			 * does not matter in this case).
  			 */
-			 	sMessage.mtype= RECV_DONE_TYPE;
-				sMessage.size= 0;
+			 	//sMessage.mtype= RECV_DONE_TYPE;
+				//sMessage.size= 0;
+
+				myMessage.mtype=RECV_DONE_TYPE;
 
 				printf("Returning empty message....\n");
-				if(msgsnd(msqid, &sMessage, 0, 0) ==-1)
+				if(msgsnd(msqid, &myMessage, 0, 0) ==-1)
 				{
 					perror("sMessage");
+					exit(1);
+				}
+				if(msgrcv(msqid, &myMessage, sizeof(struct message) - sizeof(long), SENDER_DATA_TYPE, 0) == -1)
+				{
+					perror("msgrcv ERROR");
+					exit(1);
 				}
 
 				printf("Message sent!....");
@@ -213,7 +222,7 @@ int main(int argc, char** argv)
  	 * in ctrlCSignal().
  	 */
 
-	 signal(SIGINT, ctrlCSignal);
+	signal(SIGINT, ctrlCSignal);
 
 	/* Initialize */
 	init(shmid, msqid, sharedMemPtr);
