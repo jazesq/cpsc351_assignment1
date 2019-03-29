@@ -43,8 +43,29 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 	/* TODO: Attach to the message queue */
 	/* Store the IDs and the pointer to the shared memory region in the corresponding parameters */
 	shmid = shmget(key, SHARED_MEMORY_CHUNK_SIZE, IPC_CREAT | 0644);
+	if(shmid == -1)
+	{
+		perror("ERROR: shmid");
+		exit(1);
+	}
+	//shmid = shmget(key, SHARED_MEMORY_CHUNK_SIZE, IPC_CREAT | 0644);
+
 	sharedMemPtr = (void *) shmat(shmid, NULL, 0);
+
+	if(sharedMemPtr == (char *)(-1))
+	{
+		perror("ERROR: sharedMemPtr");
+		exit(1);
+	}
+
 	msqid = msgget(key, 0644 | IPC_CREAT);
+	if(msqid == -1)
+	{
+		perror("ERROR: msqid");
+		exit(1);
+	}
+	//msqid = msgget(key, 0644 | IPC_CREAT);
+
 
 }
 
@@ -103,6 +124,7 @@ void send(const char* fileName)
 		/* TODO: Send a message to the receiver telling him that the data is ready 
  		 * (message of type SENDER_DATA_TYPE) 
  		 */
+		 //msgsnd(msqid, &sndMsg, sizeof(struct message)-sizeof(long), 0);
 		 if(msgsnd(msqid, &sndMsg, sizeof(struct message)-sizeof(long), 0) == -1)
 		 {
 			 perror("ERROR: sending message.");
@@ -111,9 +133,11 @@ void send(const char* fileName)
 		/* TODO: Wait until the receiver sends us a message of type RECV_DONE_TYPE telling us 
  		 * that he finished saving the memory chunk. 
  		 */
+		 //msgrcv(msqid, &rcvMsg, sizeof(struct message)-sizeof(long), RECV_DONE_TYPE, 0);
 		 if(msgrcv(msqid, &rcvMsg, sizeof(struct message)-sizeof(long), RECV_DONE_TYPE, 0) == -1)
 		 {
 			 perror("ERROR: receiving message");
+			 exit(1);
 		 }
 	}
 	
@@ -123,6 +147,10 @@ void send(const char* fileName)
  	  * sending a message of type SENDER_DATA_TYPE with size field set to 0. 	
 	  */
 	 sndMsg.size = 0;
+	 if(msgsnd(msqid, &sndMsg, sizeof(struct message)-sizeof(long), 0) == -1)
+	 {
+		 perror("msgsnd: ERROR");
+	 }
 		
 	/* Close the file */
 	fclose(fp);
