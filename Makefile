@@ -1,16 +1,16 @@
 all:	sender	recv
 
 sender:	sender.o
-	g++ sender.o -o sender
+	g++ -o sender sender.o
 
 recv:	recv.o
-	g++ recv.o -o recv
+	g++ -o recv recv.o
 
 sender.o:	sender.cpp
-	g++ -c sender.cpp
+	g++ -c  -std=c++11 sender.cpp
 
 recv.o:	recv.cpp
-	g++ -c recv.cpp
+	g++ -c -std=c++11 recv.cpp
 
 clean:
 	rm -rf *.o sender recv
