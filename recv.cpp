@@ -59,12 +59,23 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 	 		//	ftok("keyfile.txt",'a');
 
 	memKey = ftok("keyfile.txt", 'a');
+	// printf("Creating keyfile.txt");
+	// if(memKey == -1)
+	// {
+	// 	printf("Creating keyfile.txt");
+	// 	fstream fs;
+	// 	fs.open("keyfile.txt");
+	// 	fs << "Hey there";
+	// 	fs.close();
+	// 	memKey = ftok("keyfile.txt", 'a');
+	//
+	// }
 
 
 
 	/* TODO: Allocate a piece of shared memory. The size of the segment must be SHARED_MEMORY_CHUNK_SIZE. */
-
-	shmid = shmget(memKey,SHARED_MEMORY_CHUNK_SIZE, 0644| IPC_CREAT);
+	printf("Allocating shared memory...\n");
+	shmid = shmget(memKey,SHARED_MEMORY_CHUNK_SIZE, IPC_CREAT | 0666);
 	if(shmid == -1)
 	{
 		perror("shmgat ERROR");
@@ -72,8 +83,8 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 	}
 
 	/* TODO: Attach to the shared memory */
-	
-	if((sharedMemPtr=shmat(shmid, NULL, 0))== (char *) -1)
+	printf("Attaching shared memory...\n");
+	if((sharedMemPtr=shmat(shmid, (void*)0,0))== (char *) -1)
 	{
 		perror("SHMAT");
 		exit(1);
@@ -82,7 +93,8 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 
 	/* TODO: Create a message queue */
 	/* Store the IDs and the pointer to the shared memory region in the corresponding parameters */
-	msqid= msgget(memKey, 0644 | IPC_CREAT);
+	printf("Creating message queue\n");
+	msqid= msgget(memKey, 0666 | IPC_CREAT);
 	if(msqid ==-1 )
 	{
 		perror("msgget");
@@ -99,9 +111,10 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 void mainLoop()
 {
 	/* The size of the mesage */
-	int msgSize;
+	int msgSize =0;
 
 	/* Open the file for writing */
+	printf("Opening file for writing\n");
 	FILE* fp = fopen(recvFileName, "w");
 
 	/* Error checks */
@@ -129,7 +142,7 @@ void mainLoop()
 
 	 message myMessage;
 
-	 if(msgrcv(msqid, &myMessage, sizeof(struct message) - sizeof(long), SENDER_DATA_TYPE, 0) == -1)
+	 if(msgrcv(msqid, &myMessage, sizeof(myMessage) - sizeof(long), SENDER_DATA_TYPE, 0) == -1)
 	 {
 		 perror("msgrcv ERROR1");
 		 fclose(fp);
@@ -141,17 +154,8 @@ void mainLoop()
 
 	msgSize = myMessage.size;
 
-	/*fstream myfile;
-	myfile.open(recvFileName);
-	string c;
-	while(myfile)
-	{
-		myfile >> c;
-		//printf(c, " ");
-		cout << c;
-	}*/
 
-	
+
 
 	while(msgSize != 0)
 	{
@@ -171,14 +175,14 @@ void mainLoop()
 			 	//sMessage.mtype= RECV_DONE_TYPE;
 				//sMessage.size= 0;
 
-				myMessage.mtype=RECV_DONE_TYPE;
+				myMessage.mtype = RECV_DONE_TYPE;
 
 				if(msgsnd(msqid, &myMessage, 0, 0) ==-1)
 				{
 					perror("sMessage");
 					exit(1);
 				}
-				if(msgrcv(msqid, &myMessage, sizeof(struct message) - sizeof(long), SENDER_DATA_TYPE, 0) == -1)
+				if(msgrcv(msqid, &myMessage, sizeof(myMessage) - sizeof(long), SENDER_DATA_TYPE, 0) == -1)
 				{
 					perror("msgrcv ERROR2");
 					exit(1);
@@ -186,8 +190,11 @@ void mainLoop()
 
 				msgSize = myMessage.size;
 
+
 				printf("Message sent!....\n");
+
 		}
+
 
 		/* We are done */
 		else
@@ -197,15 +204,17 @@ void mainLoop()
 			fclose(fp);
 		}
 	}
-	/*printf("\n\n%s\n",string(50, '~').c_str());
+	printf("\n\n%s\n",string(50, '~').c_str());
 	fp = fopen(recvFileName, "r");
 	int c;
+
 	 while((c = getc(fp)) != EOF)
 	 {
+
 	 	putchar(c);
 
 	}
-	printf("\n%s\n\n\n",string(50,'~').c_str());*/
+	printf("\n%s\n\n\n",string(50,'~').c_str());
 
 
 }
@@ -266,6 +275,6 @@ int main(int argc, char** argv)
 	mainLoop();
 
 	/** TODO: Detach from shared memory segment, and deallocate shared memory and message queue (i.e. call cleanup) **/
-
+	cleanUp(shmid, msqid, sharedMemPtr);
 	return 0;
 }
