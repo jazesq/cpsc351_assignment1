@@ -9,7 +9,7 @@ Names:
   Melissa Martinez;
     Email:martinez-melissa1@csu.fullerton.edu
   Jonathan Hari;
-    Email:
+    Email:jonathanphari@csu.fullerton.edu
 
 
 We used C++.
@@ -26,3 +26,12 @@ To execute our program:
 – Whether you implemented the extra credit.
 – Anything special about your submission that we should take note of.
   Our code only works on Ubuntu Version 17.10
+CONTRIBUTIONS:
+  Chris:
+  
+  Jazmin: I worked with Melissa on the recv.cpp portion of the program. We divided the project by the 
+  .cpp files. Melissa and I were able to finish most of the functions and had our other partner's help with the print      function. We also contributed to the Makefile. 
+  
+  Melissa: 
+  
+  Jonathan:
