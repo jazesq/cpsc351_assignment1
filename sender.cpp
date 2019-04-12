@@ -1,3 +1,6 @@
+
+#include <iostream>
+#include <fstream>
 #include <sys/shm.h>
 #include <sys/msg.h>
 #include <stdio.h>
@@ -10,7 +13,9 @@
 
 /* The size of the shared memory chunk */
 #define SHARED_MEMORY_CHUNK_SIZE 1000
+#define MESSAGE_COUNT 10
 
+using namespace std;
 /* The ids for the shared memory segment and the message queue */
 int shmid, msqid;
 
@@ -25,6 +30,19 @@ void* sharedMemPtr;
 
 void init(int& shmid, int& msqid, void*& sharedMemPtr)
 {
+	/*ofstream fout;
+	fout.open("keyfile.txt");
+	if(!fout.good())
+	{
+		perror("ERROR: fout");
+		exit(1);
+	}
+	for(int i = 0; i < MESSAGE_COUNT; i++)
+	{
+		fout << i << "Hello World\n";
+	}
+	fout.close();*/
+
 	/* TODO: 
         1. Create a file called keyfile.txt containing string "Hello world" (you may do
  		    so manually or from the code).
@@ -96,6 +114,7 @@ void send(const char* fileName)
 
 	/* A buffer to store message we will send to the receiver. */
 	message sndMsg; 
+	sndMsg.mtype = SENDER_DATA_TYPE;
 	
 	/* A buffer to store message received from the receiver. */
 	message rcvMsg;
@@ -154,7 +173,17 @@ void send(const char* fileName)
 		
 	/* Close the file */
 	fclose(fp);
+
+	/*fstream myfile;
+	myfile.open("keyfile.txt");
 	
+	string c;
+	while(myfile)
+	{
+		myfile >> c;
+		//printf(c, " ");
+		cout << c;
+	}*/
 }
 
 
