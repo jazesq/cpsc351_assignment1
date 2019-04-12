@@ -27,6 +27,7 @@ To execute our program:
 – Anything special about your submission that we should take note of.
   Our code only works on Ubuntu Version 17.10
 CONTRIBUTIONS:
+  
   Chris:
   
   Jazmin: I worked with Melissa on the recv.cpp portion of the program. We divided the project by the 
