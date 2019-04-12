@@ -31,8 +31,8 @@ CONTRIBUTIONS:
   Chris:
   
   Jazmin: I worked with Melissa on the recv.cpp portion of the program. We divided the project by the 
-  .cpp files. Melissa and I were able to finish most of the functions and had our other partner's help with the print      function. We also contributed to the Makefile. 
+  .cpp files. Melissa and I were able to finish most of the functions and had our other partner's help with the print function. We also contributed to the Makefile. 
   
   Melissa: We divided the project into two parts. Jazmin and I worked together to complete the recv.cpp file. We researched and found resources online regarding Interprocess Communication and used what we learned to implement it into our part of the project. We contributed in combining our part with our partners working on the sender.cpp file.
   
-  Jonathan:
+  Jonathan: I worked with Chris on the sender.cpp file. Using the online resources provided by the professor as well as other online resources, I was able to help Chris implement Shared Memory and Message Queues into the sender.cpp file.
