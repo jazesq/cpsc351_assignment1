@@ -1,4 +1,3 @@
-//#include <iostream>
 #include <string>
 #include <fstream>
 #include <sys/shm.h>
@@ -56,20 +55,7 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 		    may have the same key.
 	 */
 
-	 		//	ftok("keyfile.txt",'a');
-
 	memKey = ftok("keyfile.txt", 'a');
-	// printf("Creating keyfile.txt");
-	// if(memKey == -1)
-	// {
-	// 	printf("Creating keyfile.txt");
-	// 	fstream fs;
-	// 	fs.open("keyfile.txt");
-	// 	fs << "Hey there";
-	// 	fs.close();
-	// 	memKey = ftok("keyfile.txt", 'a');
-	//
-	// }
 
 
 
@@ -137,8 +123,6 @@ void mainLoop()
 	/* Keep receiving until the sender set the size to 0, indicating that
  	 * there is no more data to send
  	 */
-	 //message sMessage;
-	 //message rMessage;
 
 	 message myMessage;
 
@@ -148,13 +132,10 @@ void mainLoop()
 		 fclose(fp);
 		 exit(1);
 	 }
-	 //myMessage.printer();
 
 	int messageSize= SENDER_DATA_TYPE;
 
 	msgSize = myMessage.size;
-
-
 
 
 	while(msgSize != 0)
@@ -204,19 +185,14 @@ void mainLoop()
 			fclose(fp);
 		}
 	}
-	printf("\n\n%s\n",string(50, '~').c_str());
+	
 	fp = fopen(recvFileName, "r");
-	int c;
+	int ch;
+	 do{
 
-	 while((c = getc(fp)) != EOF)
-	 {
+	 	putchar(ch);
 
-	 	putchar(c);
-
-	}
-	printf("\n%s\n\n\n",string(50,'~').c_str());
-
-
+	}while((ch = getc(fp)) != EOF);
 }
 
 
@@ -276,5 +252,6 @@ int main(int argc, char** argv)
 
 	/** TODO: Detach from shared memory segment, and deallocate shared memory and message queue (i.e. call cleanup) **/
 	cleanUp(shmid, msqid, sharedMemPtr);
+
 	return 0;
 }
