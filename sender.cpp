@@ -29,19 +29,6 @@ void* sharedMemPtr;
 
 void init(int& shmid, int& msqid, void*& sharedMemPtr)
 {
-	/*ofstream fout;
-	fout.open("keyfile.txt");
-	if(!fout.good())
-	{
-		perror("ERROR: fout");
-		exit(1);
-	}
-	for(int i = 0; i < MESSAGE_COUNT; i++)
-	{
-		fout << i << "Hello World\n";
-	}
-	fout.close();*/
-
 	/* TODO:
         1. Create a file called keyfile.txt containing string "Hello world" (you may do
  		    so manually or from the code).
@@ -81,7 +68,6 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 		perror("ERROR: msqid");
 		exit(1);
 	}
-	//msqid = msgget(key, 0644 | IPC_CREAT);
 
 
 }
@@ -112,12 +98,12 @@ void send(const char* fileName)
 
 
 	/* A buffer to store message we will send to the receiver. */
-	message sndMsg;
+	message sMsg;
 
 	int state =0;
 
 	/* A buffer to store message received from the receiver. */
-	message rcvMsg;
+	message rMsg;
 
 	/* Was the file open? */
 	if(!fp)
@@ -133,7 +119,7 @@ void send(const char* fileName)
  		 * fread will return how many bytes it has actually read (since the last chunk may be less
  		 * than SHARED_MEMORY_CHUNK_SIZE).
  		 */
-		if((sndMsg.size = fread(sharedMemPtr, sizeof(char), SHARED_MEMORY_CHUNK_SIZE, fp)) < 0)
+		if((sMsg.size = fread(sharedMemPtr, sizeof(char), SHARED_MEMORY_CHUNK_SIZE, fp)) < 0)
 		{
 			perror("fread");
 			exit(-1);
@@ -144,9 +130,9 @@ void send(const char* fileName)
  		 * (message of type SENDER_DATA_TYPE)
  		 */
 		 //msgsnd(msqid, &sndMsg, sizeof(struct message)-sizeof(long), 0);
-		 sndMsg.mtype = SENDER_DATA_TYPE;
+		 sMsg.mtype = SENDER_DATA_TYPE;
 
-		 if(msgsnd(msqid, &sndMsg, sizeof(sndMsg)-sizeof(long), 0) == -1)
+		 if(msgsnd(msqid, &sMsg, sizeof(sMsg)-sizeof(long), 0) == -1)
 		 {
 			 perror("ERROR: sending message.");
 		 }
@@ -155,7 +141,7 @@ void send(const char* fileName)
  		 * that he finished saving the memory chunk.
  		 */
 		 //msgrcv(msqid, &rcvMsg, sizeof(struct message)-sizeof(long), RECV_DONE_TYPE, 0);
-		 if(msgrcv(msqid, &rcvMsg, sizeof(rcvMsg)-sizeof(long), RECV_DONE_TYPE, 0) == -1)
+		 if(msgrcv(msqid, &rMsg, sizeof(rMsg)-sizeof(long), RECV_DONE_TYPE, 0) == -1)
 		 {
 			 perror("ERROR: receiving message");
 			 exit(1);
@@ -167,38 +153,13 @@ void send(const char* fileName)
  	  * Lets tell the receiver that we have nothing more to send. We will do this by
  	  * sending a message of type SENDER_DATA_TYPE with size field set to 0.
 	  */
-		sndMsg.mtype = SENDER_DATA_TYPE;
-	 sndMsg.size = 0;
-	 if(msgsnd(msqid, &sndMsg, sizeof(sndMsg)-sizeof(long), 0) == -1)
+	 sMsg.mtype = SENDER_DATA_TYPE;
+	 sMsg.size = 0;
+	 if(msgsnd(msqid, &sMsg, sizeof(sMsg)-sizeof(long), 0) == -1)
 	 {
 		 perror("msgsnd: ERROR");
 		 exit(1);
 	 }
-
-	/* Close the file */
-	fclose(fp);
-	printf("\n\n%s\n",string(50, '~').c_str());
-	fp = fopen(fileName, "r");
-	int c;
-
-	 while((c = getc(fp)) != EOF)
-	 {
-
-		putchar(c);
-
-	}
-	printf("\n%s\n\n\n",string(50,'~').c_str());
-
-	/*fstream myfile;
-	myfile.open("keyfile.txt");
-
-	string c;
-	while(myfile)
-	{
-		myfile >> c;
-		//printf(c, " ");
-		cout << c;
-	}*/
 }
 
 
