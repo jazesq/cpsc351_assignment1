@@ -28,7 +28,7 @@ To execute our program:
   Our code only works on Ubuntu Version 17.10
 CONTRIBUTIONS:
   
-  Chris:
+  Chris: I worked on mainly the sender.cpp file with Jonathan and later the recv.cpp for dealing with the output in the last half of our project's timeline. We were able to finish the sender.cpp file using online resources provided by the professor. I mainly implemented the if statements as well as other functions while Jonathan did the bulk of the research. 
   
   Jazmin: I worked with Melissa on the recv.cpp portion of the program. We divided the project by the 
   .cpp files. Melissa and I were able to finish most of the functions and had our other partner's help with the print function. We also contributed to the Makefile. 
